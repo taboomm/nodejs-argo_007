@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>NebulaFlow | 下一代视觉开发平台</title>
+    <!-- 字体与图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #1a1e2b;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 12px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        /* 导航栏 (玻璃质感 + 动态阴影) */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        header.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            border-bottom-color: rgba(0, 0, 0, 0.1);
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            font-size: 32px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo-text {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo-text span {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+        .nav-links a {
+            text-decoration: none;
+            font-weight: 500;
+            color: #334155;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        .nav-links a:hover {
+            color: #4f46e5;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .cta-button {
+            background: linear-gradient(105deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(79, 70, 229, 0.4);
+            background: linear-gradient(105deg, #6366f1, #8b5cf6);
+        }
+        .secondary-button {
+            background: transparent;
+            border: 1.5px solid #cbd5e1;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .secondary-button:hover {
+            border-color: #4f46e5;
+            background: #f8fafc;
+            color: #4f46e5;
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #1e293b;
+        }
+
+        /* Hero 区域 — 动态网格背景 */
+        .hero {
+            padding: 160px 0 100px;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at 10% 30%, rgba(79, 70, 229, 0.04) 0%, rgba(255,255,255,0) 60%);
+        }
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 48px;
+        }
+        .hero-text {
+            flex: 1;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: #eef2ff;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 24px;
+        }
+        .hero-text h1 {
+            font-size: 58px;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #0f172a, #334155);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 24px;
+        }
+        .hero-text h1 span {
+            background: linear-gradient(135deg, #4f46e5, #a855f7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .hero-text p {
+            font-size: 1.2rem;
+            color: #475569;
+            margin-bottom: 32px;
+            max-width: 540px;
+            line-height: 1.5;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        /* 视觉模拟器卡片 */
+        .hero-visual {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 30px 50px -25px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        .hero-visual:hover {
+            transform: translateY(-5px);
+        }
+        .mock-editor {
+            background: #f8fafc;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .mock-toolbar {
+            background: #e2e8f0;
+            padding: 12px 20px;
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid #cbd5e1;
+        }
+        .mock-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+        .mock-dot:nth-child(2) { background: #f59e0b; }
+        .mock-dot:nth-child(3) { background: #10b981; }
+        .mock-canvas {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            background: #ffffff;
+        }
+        .mock-sidebar {
+            width: 80px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0;
+            gap: 20px;
+        }
+        .mock-sidebar i {
+            font-size: 24px;
+            color: #64748b;
+        }
+        .mock-main {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 2px 8px #e2e8f0;
+        }
+        .mock-element {
+            background: #eef2ff;
+            height: 40px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            width: 80%;
+        }
+        .mock-element.lg { width: 100%; background: #e0e7ff; height: 60px;}
+
+        /* 通用标题 */
+        .section-title {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        .section-title h2 {
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #0f172a, #334155);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .section-title p {
+            color: #475569;
+            max-width: 680px;
+            margin: 16px auto 0;
+            font-size: 1.1rem;
+        }
+
+        /* Features 卡片 */
+        .features {
+            padding: 80px 0;
+            background: #ffffff;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 40px;
+        }
+        .feature-card {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 32px;
+            transition: all 0.3s;
+            border: 1px solid #f0f2f5;
+            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.02);
+        }
+        .feature-card:hover {
+            border-color: #e0e7ff;
+            transform: translateY(-8px);
+            box-shadow: 0 24px 40px -16px rgba(79, 70, 229, 0.12);
+        }
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(145deg, #eef2ff, #ffffff);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            font-size: 28px;
+            color: #4f46e5;
+        }
+        .feature-card h3 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .feature-card p {
+            color: #4b5565;
+            line-height: 1.5;
+        }
+
+        /* 数据统计 (Benefits升级) */
+        .stats-section {
+            background: linear-gradient(120deg, #f8fafc, #ffffff);
+            padding: 80px 0;
+        }
+        .stats-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+            text-align: center;
+        }
+        .stat-item {
+            flex: 1;
+            min-width: 180px;
+        }
+        .stat-number {
+            font-size: 52px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 1.1rem;
+            color: #334155;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+
+        /* 客户评价 (精致轮播) */
+        .testimonials {
+            padding: 100px 0;
+            background: #ffffff;
+        }
+        .testimonial-carousel {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            background: #fafcff;
+            border-radius: 48px;
+            padding: 48px 56px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #edf2f7;
+        }
+        .testimonial-content {
+            text-align: center;
+        }
+        .quote-icon {
+            font-size: 48px;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+        .testimonial-text {
+            font-size: 1.35rem;
+            line-height: 1.5;
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 32px;
+        }
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+        .avatar {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(145deg, #eef2ff, #e0e7ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: #4f46e5;
+        }
+        .carousel-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 32px;
+        }
+        .carousel-btn {
+            background: white;
+            border: 1px solid #e2e8f0;
+            width: 44px;
+            height: 44px;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 20px;
+            color: #4f46e5;
+        }
+        .carousel-btn:hover {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #cbd5e1;
+            border-radius: 10px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .dot.active {
+            width: 28px;
+            background: #4f46e5;
+        }
+
+        /* 定价卡片 新潮 */
+        .pricing {
+            padding: 80px 0;
+            background: #fefefe;
+        }
+        .pricing-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 32px;
+        }
+        .pricing-card {
+            background: white;
+            border-radius: 36px;
+            padding: 40px 32px;
+            flex: 1 1 280px;
+            transition: 0.25s;
+            border: 1px solid #eef2ff;
+            position: relative;
+        }
+        .pricing-card.featured {
+            border: 2px solid #4f46e5;
+            box-shadow: 0 25px 40px -12px rgba(79, 70, 229, 0.2);
+            transform: scale(1.02);
+            background: #ffffff;
+        }
+        .popular-tag {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4f46e5;
+            color: white;
+            padding: 4px 20px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .plan-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .plan-price {
+            font-size: 44px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 20px 0;
+        }
+        .plan-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #64748b;
+        }
+        .plan-features {
+            list-style: none;
+            margin: 28px 0;
+        }
+        .plan-features li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .plan-features i.fa-check-circle {
+            color: #10b981;
+        }
+        .cta-small {
+            width: 100%;
+            background: #f1f5f9;
+            border: none;
+            padding: 12px;
+            border-radius: 60px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .cta-small.primary-btn {
+            background: #4f46e5;
+            color: white;
+        }
+
+        /* CTA 横幅 */
+        .global-cta {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 80px 0;
+            text-align: center;
+            color: white;
+            border-radius: 48px;
+            margin: 40px auto;
+            max-width: 1200px;
+        }
+        .global-cta h2 {
+            font-size: 2.6rem;
+            margin-bottom: 20px;
+        }
+        .global-cta .cta-button {
+            background: white;
+            color: #0f172a;
+            box-shadow: none;
+            margin-top: 20px;
+        }
+        .global-cta .cta-button:hover {
+            background: #f1f5f9;
+        }
+
+        /* 页脚 */
+        footer {
+            background: #0f172a;
+            color: #cbd5e1;
+            padding: 64px 0 32px;
+            margin-top: 40px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 40px;
+            margin-bottom: 48px;
+        }
+        .footer-col h4 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        .footer-links {
+            list-style: none;
+        }
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        .footer-links a {
+            text-decoration: none;
+            color: #94a3b8;
+            transition: 0.2s;
+        }
+        .footer-links a:hover {
+            color: #a78bfa;
+        }
+        .copyright {
+            border-top: 1px solid #334155;
+            padding-top: 32px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1000px) {
+            .hero-content { flex-direction: column; }
+            .hero-text h1 { font-size: 48px; }
+            .hero-visual { width: 100%; }
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .header-actions .cta-button { display: none; }
+        }
+        @media (max-width: 720px) {
+            .container { padding: 0 20px; }
+            .hero { padding: 120px 0 60px; }
+            .pricing-card.featured { transform: none; }
+            .testimonial-carousel { padding: 32px 24px; }
+        }
+        /* 移动菜单展开样式 */
+        .nav-links.mobile-open {
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 32px 24px;
+            gap: 24px;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.1);
+            z-index: 999;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .fade-up {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<header id="navbar">
+    <div class="container">
+        <nav>
+            <div class="logo">
+                <i class="fas fa-bezier-curve logo-icon"></i>
+                <div class="logo-text">Nebula<span>Flow</span></div>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#features">功能</a></li>
+                <li><a href="#stats">数据</a></li>
+                <li><a href="#testimonials">评价</a></li>
+                <li><a href="#pricing">定价</a></li>
+                <li><a href="#">资源库</a></li>
+            </ul>
+            <div class="header-actions">
+                <button class="cta-button" id="mainCta">开始免费试用</button>
+                <button class="mobile-menu-btn" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text fade-up">
+                    <div class="hero-badge">✨ 全新 AI 辅助构建</div>
+                    <h1>让应用开发<br>比想象中更<span>轻盈</span></h1>
+                    <p>NebulaFlow 结合可视化拖拽与生成式 AI，企业级应用开发速度提升 10 倍，非技术人员也能轻松创造专业软件。</p>
+                    <div class="hero-buttons">
+                        <button class="cta-button">✨ 免费创建工作区</button>
+                        <button class="secondary-button" id="demoBtn">🎥 观看交互演示</button>
+                    </div>
+                </div>
+                <div class="hero-visual fade-up">
+                    <div class="mock-editor">
+                        <div class="mock-toolbar"><div class="mock-dot"></div><div class="mock-dot"></div><div class="mock-dot"></div></div>
+                        <div class="mock-canvas">
+                            <div class="mock-sidebar"><i class="fas fa-layer-group"></i><i class="fas fa-database"></i><i class="fas fa-code"></i></div>
+                            <div class="mock-main"><div class="mock-element lg"></div><div class="mock-element"></div><div class="mock-element" style="width: 60%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features 优化版 -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title fade-up"><h2>精心设计的开发体验</h2><p>从原型到生产，无与伦比的流畅度</p></div>
+            <div class="features-grid">
+                <div class="feature-card fade-up"><div class="feature-icon"><i class="fas fa-palette"></i></div><h3>视觉优先</h3><p>直观拖拽组件，实时响应式预览，设计与开发无缝衔接。</p></div>
+                <div class="feature-card fade-up"><div class="feature-icon"><i class="fas fa-brain"></i></div><h3>AI 生成组件</h3><p>智能推荐布局，自动生成 CRUD 页面，节省重复劳动。</p></div>
+                <div class="feature-card fade-up"><div class="feature-icon"><i class="fas fa-cloud-upload-alt"></i></div><h3>一键上云</h3><p>集成 Serverless 部署，自动 HTTPS、CDN 加速，全球可用。</p></div>
+                <div class="feature-card fade-up"><div class="feature-icon"><i class="fas fa-shield-virus"></i></div><h3>企业级安全</h3><p>SAML、RBAC 精细化权限，数据加密满足严格合规。</p></div>
+                <div class="feature-card fade-up"><div class="feature-icon"><i class="fas fa-mobile-alt"></i></div><h3>原生体验</h3><p>一次构建，同步生成 Web、iOS、Android 三端应用。</p></div>
+                <div class="feature-card fade-up"><div class="feature-icon"><i class="fas fa-chart-simple"></i></div><h3>实时分析</h3><p>内置性能监控与用户行为分析，持续优化产品。</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 统计数字 (滚动计数) -->
+    <section class="stats-section" id="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item"><div class="stat-number" data-target="92">0</div><div class="stat-label">开发效率提升</div><span style="font-size:0.9rem;">%</span></div>
+                <div class="stat-item"><div class="stat-number" data-target="7500">0</div><div class="stat-label">企业信赖</div><span>+</span></div>
+                <div class="stat-item"><div class="stat-number" data-target="70">0</div><div class="stat-label">维护成本降低</div><span>%</span></div>
+                <div class="stat-item"><div class="stat-number" data-target="300">0</div><div class="stat-label">预置组件库</div><span>+</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 评价轮播 (增强) -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <div class="section-title fade-up"><h2>创造者口碑</h2><p>全球顶尖团队的选择</p></div>
+            <div class="testimonial-carousel fade-up">
+                <div class="testimonial-content" id="testimonialContent"></div>
+                <div class="carousel-controls">
+                    <button class="carousel-btn" id="prevTesti"><i class="fas fa-chevron-left"></i></button>
+                    <button class="carousel-btn" id="nextTesti"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="dots" id="dotsContainer"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-title fade-up"><h2>灵活定价，适配成长</h2><p>包含所有核心功能，按需升级</p></div>
+            <div class="pricing-grid">
+                <div class="pricing-card fade-up"><h3 class="plan-name">Starter</h3><div class="plan-price">$39<span>/月</span></div><ul class="plan-features"><li><i class="fas fa-check-circle"></i> 10 名成员</li><li><i class="fas fa-check-circle"></i> 20GB 云存储</li><li><i class="fas fa-check-circle"></i> 基础组件库</li><li><i class="fas fa-check-circle"></i> 社区支持</li></ul><button class="cta-small">开始试用</button></div>
+                <div class="pricing-card featured fade-up"><div class="popular-tag">最受欢迎</div><h3 class="plan-name">专业版</h3><div class="plan-price">$89<span>/月</span></div><ul class="plan-features"><li><i class="fas fa-check-circle"></i> 无限成员</li><li><i class="fas fa-check-circle"></i> 500GB 存储</li><li><i class="fas fa-check-circle"></i> AI 组件生成</li><li><i class="fas fa-check-circle"></i> 优先客服支持</li><li><i class="fas fa-check-circle"></i> 自定义域名</li></ul><button class="cta-small primary-btn">14天免费试用</button></div>
+                <div class="pricing-card fade-up"><h3 class="plan-name">企业版</h3><div class="plan-price">定制</div><ul class="plan-features"><li><i class="fas fa-check-circle"></i> SSO/SAML</li><li><i class="fas fa-check-circle"></i> 本地部署选项</li><li><i class="fas fa-check-circle"></i> 99.99% SLA</li><li><i class="fas fa-check-circle"></i> 专属客户成功</li></ul><button class="cta-small">联系销售</button></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 大Cta -->
+    <div class="container"><div class="global-cta"><h2>准备重新定义开发流程？</h2><p>无需信用卡，15分钟构建你的第一个应用</p><button class="cta-button" id="footerCta">🚀 免费开始 →</button></div></div>
+</main>
+
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col"><h4>NebulaFlow</h4><p style="color:#94a3b8;">低代码 + AI 的未来。<br>让创意没有边界。</p></div>
+            <div class="footer-col"><h4>产品</h4><ul class="footer-links"><li><a href="#">可视化构建器</a></li><li><a href="#">AI 助手</a></li><li><a href="#">企业安全</a></li></ul></div>
+            <div class="footer-col"><h4>资源</h4><ul class="footer-links"><li><a href="#">文档中心</a></li><li><a href="#">API 参考</a></li><li><a href="#">博客</a></li></ul></div>
+            <div class="footer-col"><h4>法律</h4><ul class="footer-links"><li><a href="#">隐私条款</a></li><li><a href="#">服务协议</a></li></ul></div>
+        </div>
+        <div class="copyright">© 2025 NebulaFlow — 塑造下一代软件开发范式。</div>
+    </div>
+</footer>
+
+<script>
+    // 平滑滚动 + 移动菜单
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+        if(window.scrollY > 20) navbar.classList.add('scrolled');
+        else navbar.classList.remove('scrolled');
+    });
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if(target){
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if(document.getElementById('navLinks').classList.contains('mobile-open')){
+                    document.getElementById('navLinks').classList.remove('mobile-open');
+                }
+            }
+        });
+    });
+    const mobileToggle = document.getElementById('mobileMenuToggle');
+    const navLinks = document.getElementById('navLinks');
+    mobileToggle?.addEventListener('click', () => {
+        navLinks.classList.toggle('mobile-open');
+        const icon = mobileToggle.querySelector('i');
+        if(navLinks.classList.contains('mobile-open')) icon.classList.replace('fa-bars','fa-times');
+        else icon.classList.replace('fa-times','fa-bars');
+    });
+
+    // 数字滚动动画 (Intersection Observer)
+    const statNumbers = document.querySelectorAll('.stat-number');
+    const animateNumber = (el) => {
+        const target = parseInt(el.getAttribute('data-target'));
+        let current = 0;
+        const increment = target / 50;
+        const update = () => {
+            current += increment;
+            if(current < target) {
+                el.innerText = Math.floor(current);
+                requestAnimationFrame(update);
+            } else {
+                el.innerText = target;
+            }
+        };
+        update();
+    };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting){
+                const numDiv = entry.target;
+                if(!numDiv.classList.contains('animated')){
+                    numDiv.classList.add('animated');
+                    animateNumber(numDiv);
+                }
+                observer.unobserve(numDiv);
+            }
+        });
+    }, { threshold: 0.4 });
+    statNumbers.forEach(num => observer.observe(num));
+
+    // 测试数据轮播加强版
+    const testimonialsData = [
+        { text: "以前六个月的项目现在三周就能交付，NebulaFlow 让业务部门和IT团队真正协作起来。", name: "陈敏", title: "CTO, 智联科技", initials: "陈" },
+        { text: "无代码和低代码的终极形态，AI 助手极大提升了我们的原型迭代速度。", name: "Marcus Lee", title: "产品副总裁, 星云数据", initials: "ML" },
+        { text: "从设计到部署，体验行云流水。尤其可视化逻辑编排节省了 80% 的前端工作量。", name: "周雅君", title: "创始人, 智绘科技", initials: "周" }
+    ];
+    let activeIndex = 0;
+    const contentDiv = document.getElementById('testimonialContent');
+    const dotsDiv = document.getElementById('dotsContainer');
+    function renderTestimonial(index){
+        const t = testimonialsData[index];
+        contentDiv.innerHTML = `<div class="quote-icon"><i class="fas fa-quote-right"></i></div><div class="testimonial-text">“${t.text}”</div><div class="testimonial-author"><div class="avatar">${t.initials}</div><div><h4 style="font-weight:700;">${t.name}</h4><p style="color:#64748b;">${t.title}</p></div></div>`;
+        document.querySelectorAll('.dot').forEach((dot,i)=>{
+            if(i===index) dot.classList.add('active');
+            else dot.classList.remove('active');
+        });
+    }
+    function buildDots(){
+        dotsDiv.innerHTML = '';
+        testimonialsData.forEach((_,idx)=>{
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if(idx===activeIndex) dot.classList.add('active');
+            dot.addEventListener('click',()=>{
+                activeIndex = idx;
+                renderTestimonial(activeIndex);
+            });
+            dotsDiv.appendChild(dot);
+        });
+    }
+    document.getElementById('prevTesti')?.addEventListener('click',()=>{
+        activeIndex = (activeIndex-1+testimonialsData.length)%testimonialsData.length;
+        renderTestimonial(activeIndex);
+    });
+    document.getElementById('nextTesti')?.addEventListener('click',()=>{
+        activeIndex = (activeIndex+1)%testimonialsData.length;
+        renderTestimonial(activeIndex);
+    });
+    buildDots();
+    renderTestimonial(0);
+    setInterval(()=>{
+        activeIndex = (activeIndex+1)%testimonialsData.length;
+        renderTestimonial(activeIndex);
+    }, 6000);
+
+    // 全局按钮 alert 交互
+    const allCtas = document.querySelectorAll('.cta-button, .cta-small, .secondary-button, #demoBtn, #footerCta');
+    allCtas.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            if(btn.closest('.pricing-card')) {
+                const plan = btn.closest('.pricing-card')?.querySelector('.plan-name')?.innerText || '套餐';
+                alert(`✨ 您选择了 ${plan} 计划。完整支付流程即将开放，感谢支持！`);
+            } else {
+                alert('🎉 感谢体验 NebulaFlow！正式版本即将开放注册，敬请期待。');
+            }
+        });
+    });
+
+    // 淡入滚动动画 (fade-up)
+    const fadeElements = document.querySelectorAll('.fade-up');
+    const fadeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting){
+                entry.target.classList.add('visible');
+                fadeObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    fadeElements.forEach(el => fadeObserver.observe(el));
+</script>
+</body>
+</html>
